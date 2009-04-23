@@ -1,5 +1,3 @@
-
-
 module HighriseTags
   include Radiant::Taggable
   include Highrise
@@ -48,5 +46,11 @@ module HighriseTags
       tag.locals.person.send(method).to_s
     end
   end
+  
+  desc %{
+    Creates a tag that links back to the HighriseHQ site.
+  }
+  tag "highrise:link" do |tag|
+    %{<a href="#{Radiant::Config['highrise.site_url']}/people/#{tag.attr['id']}">}
+  end
 end
-

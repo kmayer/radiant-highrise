@@ -1,8 +1,3 @@
-# require 'rubygems'
-# 
-# gem 'activeresource'
-# require 'active_resource'
-
 module Highrise
   module Pagination
     def self.included(base)
@@ -69,7 +64,7 @@ module Highrise
   
   class Person < Subject
     include Pagination
-    
+        
     def self.find_all_across_pages_since(time)
       find_all_across_pages(:params => { :since => time.to_s(:db).gsub(/[^\d]/, '') })
     end
@@ -81,35 +76,24 @@ module Highrise
     def name
       "#{first_name} #{last_name}".strip
     end
-    
-    # list, item, location
-    # def lookup(list, item, location)
-    #   contact_date.#{list}.each do |i|
-    #     return i.#{item}.strip if i.location == #{location}
-    #   end
-    #   'N/A'
-    # end
-    # 
-    def phone
-      contact_data.phone_numbers.each do |n|
-        return n.number.strip if n.location == "Work" 
-      end
-      'N/A'
-    end
 
-    def fax
-      contact_data.phone_numbers.each do |n|
-        return n.number.strip if n.location == "Fax" 
+    class << self
+      def lookup(id, list, item, location)
+        module_eval <<-EOT
+          def #{id}
+            contact_data.#{list}.each do |i|
+              return i.#{item}.strip if i.location == "#{location}"
+            end
+          end
+        EOT
       end
-      'N/A'
+      
+      private :lookup
     end
     
-    def email
-      contact_data.email_addresses.each do |n|
-        return n.address.strip if n.location == "Work" 
-      end
-      'N/A'
-    end
+    lookup(:phone, 'phone_numbers',   'number',  'Work')
+    lookup(:fax,   'phone_numbers',   'number',  'Fax')
+    lookup(:email, 'email_addresses', 'address', 'Work')
 
     def highriseid
       id
