@@ -3,8 +3,8 @@
 
 class HighriseExtension < Radiant::Extension
   version "1.0"
-  description "Integration to Highrise API"
-  url "http://github.com/kmayer"
+  description "Integration with Highrise API"
+  url "http://github.com/kmayer/radiant-highrise"
   
   # define_routes do |map|
   #   map.connect 'admin/highrise/:action', :controller => 'admin/highrise'
