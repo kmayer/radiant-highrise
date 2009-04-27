@@ -12,6 +12,7 @@ module HighriseTags
             contact_data.#{list}.each do |i|
               return i.#{item}.strip if i.location == "#{location}"
             end
+            ''
           end
         EOT
       end
