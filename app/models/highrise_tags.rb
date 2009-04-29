@@ -27,6 +27,17 @@ module HighriseTags
   
   class TagError < StandardError; end
   
+  desc %{
+    Inside this tag, all attribute tags are mapped to the current entity from Highrise. 
+    
+    Default object is "Person"
+    
+    *Usage:*
+    <pre><code><r:highrise>
+    ...
+    </r:highrise>
+    </code></pre>
+  }
   tag 'highrise' do |tag|
     id = tag.attr['id'] rescue nil
     if id

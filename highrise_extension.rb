@@ -3,7 +3,7 @@
 require 'highrise'
 
 class HighriseExtension < Radiant::Extension
-  version "1.0"
+  version "1.1"
   description "Integration with Highrise API"
   url "http://github.com/kmayer/radiant-highrise"
   
