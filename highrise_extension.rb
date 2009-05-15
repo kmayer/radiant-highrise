@@ -13,13 +13,14 @@ class HighriseExtension < Radiant::Extension
   
   def activate
     # admin.tabs.add "Highrise", "/admin/highrise", :after => "Layouts", :visibility => [:all]
-    Page.send :include, HighriseTags
     Highrise::Base.site = Radiant::Config['highrise.site_url']
     if Highrise::Base.respond_to? :user
       Highrise::Base.user = Radiant::Config['highrise.api_auth_token']
     else 
       Highrise::Base.site = Radiant::Config['highrise.site_url'].gsub('://',"://#{Radiant::Config['highrise.api_auth_token']}@")
     end
+    Highrise::Base.connection.cache_store = ActiveSupport::Cache.lookup_store
+    Page.send :include, HighriseTags
   end
   
   def deactivate

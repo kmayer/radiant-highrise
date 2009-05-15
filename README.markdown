@@ -7,7 +7,7 @@ Use typical radiant tags to get people data out of your [Highrise][h] account.
 This uses my version of the [HighriseAPI][api] gem, hosted at [GitHub][gems], by
 adding the following to your environment.rb file:
 
-    config.gem "kmayer-highrise", :version => "~>0.7.0"
+    config.gem "kmayer-highrise", :version => ">=0.9.2"
     
 and then
 
