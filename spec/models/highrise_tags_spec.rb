@@ -14,7 +14,7 @@ describe "HighriseTags" do
   
   describe "<r:highrise>" do
     before(:each) do
-      @person = { :id => '1', :first_name => 'John', :last_name => 'Doe', :title => 'Boss', 
+      @person = { :id => '1', :first_name => 'John', :last_name => 'Doe', :title => 'Boss', :company_id => '1',
         :contact_data => {
           :email_addresses => [{:address => 'john@example.com', :location => 'Work', :id => '101'}],
           :phone_numbers => [{:number => '(888) 999-1234', :location => 'Work'},
@@ -25,6 +25,7 @@ describe "HighriseTags" do
         mock.get "/people/1.xml", {}, @person
         mock.get "/people/2.xml", {}, { :id => '2' }.to_xml(:root => 'person')
         mock.get "/people/3.xml", {}, { :id => '3', :first_name => 'John' }.to_xml(:root => 'person')
+        mock.get "/companies/1.xml", {}, { :id => '1', :name => 'The Company'}.to_xml(:root => 'company')
       end
     end
 
@@ -43,6 +44,11 @@ describe "HighriseTags" do
       @page.should render(%{<r:highrise id="2"><r:highrise:title/></r:highrise>}).as ''
     end
     
+    it "should render a company name" do
+      @page.should render(%{<r:highrise id="1"><r:highrise:company/></r:highrise>}).as 'The Company'
+      @page.should render(%{<r:highrise id="2"><r:highrise:company/></r:highrise>}).as ''
+    end
+    
     it "should render the first work number as a phone number" do
       @page.should render(%{<r:highrise id="1"><r:highrise:phone/></r:highrise>}).as '(888) 999-1234'
       @page.should render(%{<r:highrise id="2"><r:highrise:phone/></r:highrise>}).as ''
@@ -59,9 +65,17 @@ describe "HighriseTags" do
     end
     
     it "should render a valid link tag that points back to HighriseHQ" do
-      @page.should render(%{<r:highrise id="1"><r:highrise:link/></r:highrise>}).as %{<a href="#{Radiant::Config['highrise.site_url']}/people/1">more info...</a>}
+      @page.should render(%{<r:highrise id="1"><r:highrise:link/></r:highrise>}).as %{<a href="#{Radiant::Config['highrise.site_url']}/people/1">John Doe</a>}
     end
     
+    it "should render a valid link tag with filled text, that points back to HighriseHQ" do
+      @page.should render(%{<r:highrise id="1"><r:highrise:link>Person</r:highrise:link></r:highrise>}).as %{<a href="#{Radiant::Config['highrise.site_url']}/people/1">Person</a>}
+    end
+
+    it "should render a url tag that points back to HighriseHQ" do
+      @page.should render(%{<r:highrise id="1"><r:highrise:url/></r:highrise>}).as %{#{Radiant::Config['highrise.site_url']}/people/1}
+    end
+
     it "should raise an error if the person is not found" do
       response = stub("Response")
       response.stub!(:code).and_return(404)
@@ -71,6 +85,7 @@ describe "HighriseTags" do
       @page.should render(%{<r:highrise id="#{id}"><r:highrise:name/> </r:highrise>}).
         with_error("Couldn't find Highrise::Person with ID=#{id}")
     end
+    
   end
   
   describe "<r:highrise:each>" do
@@ -90,8 +105,8 @@ describe "HighriseTags" do
     end
     
     it "should return a subset of contacts, given a tag_id" do
-      Highrise::Person.should_receive(:find_all_across_pages).with({:params => {:tag_id => "1"}}).and_return(@people[0..1])
-      @page.should render(%{<r:highrise:each tag_id="1"><r:id/> </r:highrise:each>}).as '0 1 '
+      Highrise::Person.should_receive(:find_all_across_pages).with({:params => {:tag_id => "tag"}}).and_return(@people[0..1])
+      @page.should render(%{<r:highrise:each tag_id="tag"><r:id/> </r:highrise:each>}).as '0 1 '
     end
 
     it "should raise an error if the tag_id is not found" do

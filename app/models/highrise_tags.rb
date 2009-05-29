@@ -29,14 +29,9 @@ module HighriseTags
   
   desc %{
     Inside this tag, all attribute tags are mapped to the current entity from Highrise. 
-    
-    Default object is "Person"
-    
+        
     *Usage:*
-    <pre><code><r:highrise>
-    ...
-    </r:highrise>
-    </code></pre>
+    <pre><code><r:highrise [id="nnnnn"]>...</r:highrise></code></pre>
   }
   tag 'highrise' do |tag|
     id = tag.attr['id'] rescue nil
@@ -47,7 +42,7 @@ module HighriseTags
         if e.to_s =~ /Failed with 404/
           raise TagError.new("Couldn't find Highrise::Person with ID=#{id}")
         else
-          raise e
+          raise TagError.new(e.to_s)
         end
       end
     end
@@ -57,6 +52,9 @@ module HighriseTags
   %w{name title phone fax email id}.each do |method|
     desc %{
       Renders the @#{method} attribute of the current person.
+      
+      *Usage:*
+      <pre><code><r:highrise:#{method}/></code></pre>
     }
     tag "highrise:#{method.to_s}" do |tag|
       begin
@@ -66,25 +64,50 @@ module HighriseTags
       end
     end
   end
-
+  
   desc %{
-    Creates a tag that links back to the HighriseHQ site.
+    Renders the @company name attribute of the current person
+
+    *Usage:*
+    <pre><code><r:highrise:company/></code></pre>
   }
-  tag "highrise:link" do |tag|
-    %{<a href="#{Radiant::Config['highrise.site_url']}/people/#{tag.locals.person.id}">more info...</a>}
+  tag 'highrise:company' do |tag|
+    begin
+      tag.locals.person.company.name
+    rescue NameError # N/A
+      ''
+    end
   end
 
   desc %{
-    Cycles through each of the entries in the Highrise DB. Inside this tag, all  
-    attribute tags are mapped to the current entity from Highrise. 
-    
-    Default object is "Person"
+    Renders a url to HighriseHQ site.
     
     *Usage:*
-    <pre><code><r:highrise:each>
-    ...
-    </r:highrise:each>
-    </code></pre>
+    <pre><code><a href="<r:highrise:url/>"><r:highrise:name/></a></code></pre>
+  }
+  tag "highrise:url" do |tag|
+    highrise_url(tag)
+  end
+
+  
+  desc %{
+    Creates a tag that links back to the HighriseHQ site.
+    
+    A self-closed tag (e.g. <code><r:highrise:link/></code> will render the person's name as the anchor text. 
+
+    *Usage:*
+    <pre><code><r:highrise:link>Highrise...</r:highrise:link></code></pre>
+  }
+  tag "highrise:link" do |tag|
+    text = tag.double? ? tag.expand : tag.locals.person.name    
+    %{<a href="#{highrise_url(tag)}">#{text}</a>}
+  end
+
+  desc %{
+    Cycles through each of the entries in the Highrise DB. Inside this tag, all attribute tags are mapped to the current entity from Highrise. 
+    
+    *Usage:*
+    <pre><code><r:highrise:each [tag_id="_highrise-tag_"]>...</r:highrise:each></code></pre>
   }
   tag 'highrise:each' do |tag|
     result = []
@@ -105,10 +128,15 @@ module HighriseTags
       if e.to_s =~ /Failed with 404/
         raise TagError.new("Couldn't find any TAG_ID=#{tag_id}")
       else
-        raise e
+        raise TagError.new(e.to_s)
       end
     end
     result
   end
   
+  private
+  
+  def highrise_url(tag)
+    %{#{Radiant::Config['highrise.site_url']}/people/#{tag.locals.person.id}}
+  end
 end
