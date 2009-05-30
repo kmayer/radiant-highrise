@@ -97,6 +97,9 @@ describe "HighriseTags" do
           @people << person
         end
       end
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.get "/tags.xml", {}, [{ :id => '1', :name => "tag"}].to_xml(:root => 'tags')
+      end
     end
     
     it "should return a list of all contacts" do
@@ -105,16 +108,22 @@ describe "HighriseTags" do
     end
     
     it "should return a subset of contacts, given a tag_id" do
-      Highrise::Person.should_receive(:find_all_across_pages).with({:params => {:tag_id => "tag"}}).and_return(@people[0..1])
+      Highrise::Person.should_receive(:find_all_across_pages).with({:params => {:tag_id => "1"}}).and_return(@people[0..1])
       @page.should render(%{<r:highrise:each tag_id="tag"><r:id/> </r:highrise:each>}).as '0 1 '
     end
 
     it "should raise an error if the tag_id is not found" do
       response = stub("Response")
       response.stub!(:code).and_return(404)
-      id = 'non-existent-id'
+      id = '999'
       Highrise::Person.should_receive(:find_all_across_pages).with({:params => {:tag_id => "#{id}"}}).
         and_raise(ActiveResource::ResourceNotFound.new(response))
+      @page.should render(%{<r:highrise:each tag_id="#{id}"><r:highrise:name/> </r:highrise:each>}).
+        with_error("Couldn't find any TAG_ID=#{id}")
+    end
+
+    it "should raise an error if the tag_id is not found" do
+      id = 'non-existent-id'
       @page.should render(%{<r:highrise:each tag_id="#{id}"><r:highrise:name/> </r:highrise:each>}).
         with_error("Couldn't find any TAG_ID=#{id}")
     end

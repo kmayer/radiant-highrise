@@ -34,16 +34,11 @@ module HighriseTags
     <pre><code><r:highrise [id="nnnnn"]>...</r:highrise></code></pre>
   }
   tag 'highrise' do |tag|
-    id = tag.attr['id'] rescue nil
-    if id
+    if id = tag.attr.fetch('id', nil)
       begin
         tag.locals.person = Highrise::Person.find(id)
       rescue ActiveResource::ResourceNotFound => e
-        if e.to_s =~ /Failed with 404/
-          raise TagError.new("Couldn't find Highrise::Person with ID=#{id}")
-        else
-          raise TagError.new(e.to_s)
-        end
+        exception_rescue(e, "Couldn't find Highrise::Person with ID=#{id}")
       end
     end
     tag.expand
@@ -59,7 +54,7 @@ module HighriseTags
     tag "highrise:#{method.to_s}" do |tag|
       begin
         tag.locals.person.send(method).to_s
-      rescue NameError  # None available
+      rescue NameError
         ''
       end
     end
@@ -74,7 +69,7 @@ module HighriseTags
   tag 'highrise:company' do |tag|
     begin
       tag.locals.person.company.name
-    rescue NameError # N/A
+    rescue NameError
       ''
     end
   end
@@ -110,33 +105,45 @@ module HighriseTags
     <pre><code><r:highrise:each [tag_id="_highrise-tag_"]>...</r:highrise:each></code></pre>
   }
   tag 'highrise:each' do |tag|
+    tag_id = tag.attr.fetch('tag_id', nil)
     result = []
-    tag_id = tag.attr['tag_id'] rescue nil
-    # :all, :params => {:tag_id => '329788'}
-    if tag_id 
-      options = {:params => {:tag_id => tag_id}}
-    else
-      options = {}
-    end
-    
     begin
-      Highrise::Person.find_all_across_pages(options).each do |person|
+      Highrise::Person.find_all_across_pages(options(tag_id)).each do |person|
         tag.locals.person = person
         result << tag.expand
       end
-    rescue  ActiveResource::ResourceNotFound => e
-      if e.to_s =~ /Failed with 404/
-        raise TagError.new("Couldn't find any TAG_ID=#{tag_id}")
-      else
-        raise TagError.new(e.to_s)
-      end
+    rescue ActiveResource::ResourceNotFound => e
+      exception_rescue(e,"Couldn't find any TAG_ID=#{tag_id}")
     end
     result
   end
   
-  private
+private
   
   def highrise_url(tag)
     %{#{Radiant::Config['highrise.site_url']}/people/#{tag.locals.person.id}}
+  end
+  
+  def exception_rescue(e, message)
+    if e.to_s =~ /Failed with 404/
+      raise TagError.new(message)
+    else
+      raise TagError.new(e.to_s)
+    end
+  end
+  
+  def options(tag_id)
+    if tag_id.nil?
+      {}
+    else
+      if tag_id !~ /\d+/
+        begin
+          tag_id = Highrise::Tag.find_by_name(tag_id).id
+        rescue
+          raise TagError.new("Couldn't find any TAG_ID=#{tag_id}")
+        end
+      end
+      {:params => {:tag_id => tag_id}}
+    end    
   end
 end
