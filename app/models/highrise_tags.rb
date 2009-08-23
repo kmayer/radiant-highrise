@@ -1,5 +1,3 @@
-require 'highrise'
-
 module HighriseTags
   include Radiant::Taggable
   include Highrise
