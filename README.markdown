@@ -2,25 +2,6 @@
 
 Use typical radiant tags to get people data out of your [Highrise][h] account.
 
-## Prerequisites
-
-This uses my version of the [HighriseAPI][api] gem, hosted at [GitHub][gems], by
-adding the following to your environment.rb file:
-
-    config.gem "kmayer-highrise", :version => ">=0.9.2"
-    
-and then
-
-    rake gem:install
-    
-and optionally
-
-    rake gem:unpack
-    
-but you can also install it as a plugin in `RAILS_ROOT/vendor/plugins`:
-
-    git submodule add git://github.com/kmayer/highrise.git vendor/plugins/highrise
-
 ## Installation
 
 In your RadiantCMS root,
@@ -60,6 +41,7 @@ summary:
     <r:highrise:phone/>
     <r:highrise:fax/>
     <r:highrise:email/>
+    <r:highrise:web/>
     
     <r:highrise:link/> -- creates an A HREF tag back to the Highrise page for this person
 
