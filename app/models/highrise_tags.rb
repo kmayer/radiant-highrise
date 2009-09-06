@@ -21,6 +21,7 @@ module HighriseTags
     lookup(:phone, 'phone_numbers',   'number',  'Work')
     lookup(:fax,   'phone_numbers',   'number',  'Fax')
     lookup(:email, 'email_addresses', 'address', 'Work')
+    lookup(:web,   'web_addresses',   'url',     'Work')
   end
   
   class TagError < StandardError; end
@@ -42,7 +43,7 @@ module HighriseTags
     tag.expand
   end
   
-  %w{name title phone fax email id}.each do |method|
+  %w{name title phone fax email web id}.each do |method|
     desc %{
       Renders the @#{method} attribute of the current person.
       

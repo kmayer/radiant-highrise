@@ -17,6 +17,7 @@ describe "HighriseTags" do
       @person = { :id => '1', :first_name => 'John', :last_name => 'Doe', :title => 'Boss', :company_id => '1',
         :contact_data => {
           :email_addresses => [{:address => 'john@example.com', :location => 'Work', :id => '101'}],
+          :web_addresses => [{:url => 'http://example.com.i/john', :location => 'Work', :id => '102'}],
           :phone_numbers => [{:number => '(888) 999-1234', :location => 'Work'},
                              {:number => '(800) 555-9876', :location => 'Fax'}]
                           }
@@ -62,6 +63,11 @@ describe "HighriseTags" do
     it "should render the first email as an email address" do
       @page.should render(%{<r:highrise id="1"><r:highrise:email/></r:highrise>}).as 'john@example.com'
       @page.should render(%{<r:highrise id="2"><r:highrise:email/></r:highrise>}).as ''
+    end
+    
+    it "should render the first web address as a web address" do
+      @page.should render(%{<r:highrise id="1"><r:highrise:web/></r:highrise>}).as 'http://example.com.i/john'
+      @page.should render(%{<r:highrise id="2"><r:highrise:web/></r:highrise>}).as ''
     end
     
     it "should render a valid link tag that points back to HighriseHQ" do
