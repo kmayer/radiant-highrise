@@ -1,4 +1,4 @@
-# Highrise (0.13.0)
+# Highrise (1.0)
 
 ## What is it?
 
@@ -12,12 +12,11 @@ All these classes are inherited from ActiveResouce::Base. Refer to the [ActiveRe
 
     gem install kmayer-highrise
 
-### Dependencies
+### Dependencies (see the Rakefile or run <code>rake check_dependencies</code>)
 
-* ActiveResorce >= 2.2.2
-* ActiveSupport >= 2.1
-* Curb
-* Hpricot
+### Documentation
+
+  I'm on [rdoc.info][rdoc] and here're some [metrics][devver]
 
 ### Configure your key
     
@@ -33,7 +32,7 @@ or
 
 and, if you want [caching][c]:
 
-    Highrise::Base.connection.cache_store= <your normal ActiveSupport::Caching options>
+    Highrise::Base.cache_store= <your normal ActiveSupport::Caching options>
     
 If you are using this in a Rails application, putting this code in a config/initializers/highrise.rb
 file is recommended. See config_initializers_highrise.rb in the examples/ directory.
@@ -84,3 +83,5 @@ for writing an excellent tutorial and [posting your source][e] on GitHub.
 [re]: http://www.railsenvy.com/2009/4/29/rails-envy-podcast-episode-077-04-29-2009
 [rh]: http://reinh.com/blog/2009/04/27/how-to-cache-anything-with-activesupport.html
 [tl]: http://github.com/ThiagoLelis
+[rdoc]: http://rdoc.info/projects/kmayer/highrise
+[devver]: https://devver.net/caliper/project?repo=git%3A%2F%2Fgithub.com%2Fkmayer%2Fhighrise.git
